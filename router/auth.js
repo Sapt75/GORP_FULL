@@ -637,7 +637,15 @@ router.get("/getnewonecardata/:model/:id", async (req, res) => {
 });
 
 router.get("/single_car/:brand/:model/:version", async (req, res) => {
-    let data = await CarData.find({ brand: { $regex: req.params.brand, $options: 'i' }, model_name: { $regex: req.params.model, $options: 'i' }, version_name: { $regex: req.params.version, $options: 'i' } })
+
+    let { brand, model, version } = req.params
+
+    brand.toLowerCase()
+    model.toLowerCase()
+
+
+    let data = await CarData.find({ brand: brand.charAt(0).toUpperCase() + brand.slice(1), model_name: model.charAt(0).toUpperCase() + model.slice(1), version_name: { $regex: version, $options: 'i' } })
+
     res.send(data)
 })
 
