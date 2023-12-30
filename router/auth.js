@@ -869,7 +869,7 @@ router.get('/model_prices/:id', async (req, res) => {
 })
 
 router.get('/version_data/:id', async (req, res) => {
-    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications Features transmission_type -_id')
+    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications.engine_and_transmission.displacement Specifications.engine_and_transmission.fuel_type transmission_type -_id')
     res.send(data)
 })
 
@@ -879,7 +879,6 @@ router.get('/version_prices/:id/:city', async (req, res) => {
 })
 
 router.get('/single_version/:mid/:city', async (req, res) => {
-    console.log(req.params.mid, req.params.city)
     let data = await PriceDetails.find({ city_name: req.params.city, Version_UID: req.params.mid }).select('ex_showroom_price -_id')
     res.send(data)
 })
