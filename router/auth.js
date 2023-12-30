@@ -1838,6 +1838,40 @@ router.get("/color_images/:brand/:model", async (req, res) => {
     });
 })
 
+router.get("/car_images/:brand/:model", async (req, res) => {
+
+    let images = {
+        interior: [],
+        exterior: []
+    }
+
+    var imagekit = new ImageKit({
+        publicKey: "public_lzmiZh6Ro/q1w/s4jWGPmaB7L4Q=",
+        privateKey: "private_gnukSa/kGIs8Oogw8Kn56LnFw7g=",
+        urlEndpoint: "https://ik.imagekit.io/GORP"
+    });
+
+    imagekit.listFiles({
+        skip: 0,
+        path: `/${req.params.brand}/${req.params.model}/Exterior`
+    }, function (error, result) {
+        if (error) console.log(error);
+        else {
+            result.map((item) => images.exterior.push(item.name))
+            imagekit.listFiles({
+                skip: 0,
+                path: `/${req.params.brand}/${req.params.model}/Interior`
+            }, function (error, result) {
+                if (error) console.log(error);
+                else {
+                    result.map((item) => images.interior.push(item.name));
+                    res.send(images)
+                }
+            });
+        };
+    });
+})
+
 
 router.get("/get_state", async (req, res) => {
     let data = await Pincode_Details.find().distinct("State")
