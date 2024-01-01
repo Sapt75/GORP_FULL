@@ -646,6 +646,7 @@ router.get("/single_car/:brand/:model/:version", async (req, res) => {
 
     let data = await CarData.find({ brand: brand.charAt(0).toUpperCase() + brand.slice(1), model_name: model.charAt(0).toUpperCase() + model.slice(1), version_name: { $regex: version, $options: 'i' } })
 
+
     res.send(data)
 })
 
@@ -719,14 +720,8 @@ router.get("/getonebrandcarsnew", async (req, res) => {
 
 
 router.get("/brands_cars/:brand", async (req, res) => {
-    try {
-        const data = await CarData.find({ brand: { $regex: req.params.brand, $options: 'i' } }).select("brand model_name uid model_id -_id");
-        res.status(201).json([...new Map(data.map(item => [item["model_name"], item])).values()]);
-
-    } catch (error) {
-        res.status(422).json(error);
-
-    }
+    const data = await CarData.find({ brand: req.params.brand.toLowerCase().toLowerCase().split(' ').map(x => x[0].toUpperCase() + x.slice(1)).join(' ') }).select("brand model_name uid model_id -_id");
+    res.send(data)
 })
 
 // for model page - -   -   -   -   -   -   -   -   -   -   -   -   --  -   -   -   -   --      --  -   -   -   -   -
@@ -1841,7 +1836,7 @@ router.get("/color_images/:brand/:model", async (req, res) => {
         path: `/${req.params.brand}/${req.params.model}/Color`
     }, function (error, result) {
         if (error) console.log(error);
-        else res.send(result.map((item) => item.name));
+        else res.send(result.map((item) => item.url));
     });
 })
 
