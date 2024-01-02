@@ -720,7 +720,8 @@ router.get("/getonebrandcarsnew", async (req, res) => {
 
 
 router.get("/brands_cars/:brand", async (req, res) => {
-    const data = await CarData.find({ brand: req.params.brand.toLowerCase().toLowerCase().split(' ').map(x => x[0].toUpperCase() + x.slice(1)).join(' ') }).select("brand model_name uid model_id -_id");
+    let brand = req.params.brand.toLowerCase().toLowerCase().split(' ').map(x => x[0].toUpperCase() + x.slice(1)).join(' ')
+    const data = await CarData.find({ brand: brand }).distinct("model_name");
     res.send(data)
 })
 
