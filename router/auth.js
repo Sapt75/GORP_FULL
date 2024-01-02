@@ -1860,14 +1860,14 @@ router.get("/car_images/:brand/:model", async (req, res) => {
     }, function (error, result) {
         if (error) console.log(error);
         else {
-            result.map((item) => images.exterior.push(item.name))
+            result.map((item) => images.exterior.push(item.url))
             imagekit.listFiles({
                 skip: 0,
                 path: `/${req.params.brand}/${req.params.model}/Interior`
             }, function (error, result) {
                 if (error) console.log(error);
                 else {
-                    result.map((item) => images.interior.push(item.name));
+                    result.map((item) => images.interior.push(item.url));
                     res.send(images)
                 }
             });
