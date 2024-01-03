@@ -640,11 +640,13 @@ router.get("/single_car/:brand/:model/:version", async (req, res) => {
 
     let { brand, model, version } = req.params
 
-    brand.toLowerCase()
-    model.toLowerCase()
+    
+    brand = brand.split("-").join(" ").toLowerCase()
+    model = model.split("-").join(" ").toLowerCase()
+    version = version.split("-").join(" ").toLowerCase()
+    
 
-
-    let data = await CarData.find({ brand: brand.charAt(0).toUpperCase() + brand.slice(1), model_name: model.charAt(0).toUpperCase() + model.slice(1), version_name: { $regex: version, $options: 'i' } })
+    let data = await CarData.find({ brand: { $regex: brand, $options: 'i' }, model_name: { $regex: model, $options: 'i' }, version_name: { $regex: version, $options: 'i' } })
 
 
     res.send(data)
@@ -1842,6 +1844,8 @@ router.get("/color_images/:brand/:model", async (req, res) => {
 })
 
 router.get("/car_images/:brand/:model", async (req, res) => {
+
+    console.log(req.params.brand, req.params.model)
 
     let images = {
         interior: [],
