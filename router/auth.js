@@ -699,7 +699,7 @@ router.get("/getonebrandcarsnew", async (req, res) => {
         // const page = parseInt(req.query.page) || 0;
         // const branddata = await NewCarData.find(req.query).limit(MAX_CAR_PER_PAGE).skip(MAX_CAR_PER_PAGE * page);
         console.log(req.query)
-        const branddata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' } }).select('fuel_type model_name transmission_type uid model_id -_id');
+        const branddata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' } }).select('fuel_type brand model_name transmission_type uid model_id -_id');
         // const ALL_CARS = await NewCarData.find(req.query);
         // const NO_OF_CARS = (ALL_CARS.length);
         // const NO_OF_PAGES = Math.ceil(NO_OF_CARS / MAX_CAR_PER_PAGE);
