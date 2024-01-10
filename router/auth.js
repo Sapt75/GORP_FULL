@@ -856,7 +856,7 @@ router.get('/car_brands/:state', async (req, res) => {
 })
 
 router.get('/city_names', async (req, res) => {
-    let data = await City_Details.find().select(["City Name"]).sort({ "City Name": 1 })
+    let data = await City_Details.find().select().sort({ "City Name": 1 })
     res.send(data)
 })
 
