@@ -751,7 +751,7 @@ router.get("/getmodeldetails", async (req, res) => {
 router.get("/getmodelnewdetails", async (req, res) => {
     try {
         // const modeldata = await NewCarData.find(req.query).limit(MAX_CAR_PER_PAGE).skip(MAX_CAR_PER_PAGE * page);
-        const modeldata = await CarData.find({ brand: req.query.brand, model_name: { $regex: req.query.model_name, $options: 'i' } }).select("displacement uid model_id transmission_type arai_mileage brand model_name model_id uid version_name Specifications Features model_description color_algorithm mileage_algorithm pros cons body_type seating_capacity -_id");
+        const modeldata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' }, model_name: { $regex: req.query.model_name, $options: 'i' } }).select("displacement uid model_id transmission_type arai_mileage brand model_name model_id uid version_name Specifications Features model_description color_algorithm mileage_algorithm pros cons body_type seating_capacity -_id");
         // const ALL_CARS = await NewCarData.find(req.query);
         // const NO_OF_CARS = (ALL_CARS.length);
         // const NO_OF_PAGES = Math.ceil(NO_OF_CARS / MAX_CAR_PER_PAGE);
@@ -814,6 +814,9 @@ router.post('/signin', async (req, res) => {
 
 
 router.post('/dealer', async (req, res) => {
+
+    console.log(req.body)
+
     if (req.body.pin.length > 0) {
         console.log(req.body.pin)
         let data = await Dealer_Details.find({ brand_name: req.body.brand, city_name: req.body.city, pincode: req.body.pin })
