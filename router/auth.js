@@ -644,10 +644,13 @@ router.get("/single_car/:brand/:model/:version", async (req, res) => {
     brand = brand.split("-").join(" ").toLowerCase()
     model = model.split("-").join(" ").toLowerCase()
     version = version.split("-").join(" ").toLowerCase()
+
+    console.log(brand, model, version)
     
 
     let data = await CarData.find({ brand: { $regex: brand, $options: 'i' }, model_name: { $regex: model, $options: 'i' }, version_name: { $regex: version, $options: 'i' } })
 
+    console.log(data)
 
     res.send(data)
 })
@@ -1014,7 +1017,7 @@ router.post('/price_query', async (req, res) => {
 })
 
 router.get('/model_car/:brand/:model', async (req, res) => {
-    let data = await CarData.find({ brand: req.params.brand, model_name: { $regex: req.params.model, $options: 'i' } }).select("transmission_type seating_capacity Specifications Features -_id")
+    let data = await CarData.find({ brand:  { $regex: req.params.brand, $options: 'i' }, model_name: { $regex: req.params.model, $options: 'i' } }).select("transmission_type seating_capacity Specifications Features -_id")
     res.send(data)
 })
 
