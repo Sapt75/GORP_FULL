@@ -1037,7 +1037,7 @@ router.get('/pincode_details/:code', async (req, res) => {
 
 router.get('/price_car_details/:version/:model', async (req, res) => {
     console.log(req.params.version, req.params.model)
-    let data = await CarData.find({ uid: req.params.version, model_id: req.params.model }).select('brand model_name version_name -_id')
+    let data = await CarData.find({ uid: req.params.version, model_id: req.params.model }).select('brand model_name version_name uid -_id')
     res.send(data)
 })
 
