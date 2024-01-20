@@ -640,13 +640,13 @@ router.get("/single_car/:brand/:model/:version", async (req, res) => {
 
     let { brand, model, version } = req.params
 
-    
+
     brand = brand.split("-").join(" ").toLowerCase()
     model = model.split("-").join(" ").toLowerCase()
     version = version.split("-").join(" ").toLowerCase()
 
     console.log(brand, model, version)
-    
+
 
     let data = await CarData.find({ brand: { $regex: brand, $options: 'i' }, model_name: { $regex: model, $options: 'i' }, version_name: { $regex: version, $options: 'i' } })
 
@@ -921,14 +921,12 @@ router.get('/filter/:type/:value/:state', async (req, res) => {
     let filter = {}
     filter[type] = { $regex: value, $options: 'i' }
 
-    console.log(type, value, state, filter)
 
     state == "true" ? next = 0 : null
 
 
     let data = await CarData.find(type === "fuel_type" ? { "Specifications.engine_and_transmission.fuel_type": { $regex: value, $options: 'i' } } : filter).skip(next).select('Specifications Features model_name brand transmission_type uid model_id -_id').limit(100)
 
-    console.log(data)
 
 
     next += 100
@@ -938,7 +936,7 @@ router.get('/filter/:type/:value/:state', async (req, res) => {
             return t.model_name == value.model_name
         })
     })
-    console.log(newData)
+
     // res.send(newData.length.toString())
     res.status(201).json(newData)
 })
@@ -1017,7 +1015,7 @@ router.post('/price_query', async (req, res) => {
 })
 
 router.get('/model_car/:brand/:model', async (req, res) => {
-    let data = await CarData.find({ brand:  { $regex: req.params.brand, $options: 'i' }, model_name: { $regex: req.params.model, $options: 'i' } }).select("transmission_type seating_capacity Specifications Features -_id")
+    let data = await CarData.find({ brand: { $regex: req.params.brand, $options: 'i' }, model_name: { $regex: req.params.model, $options: 'i' } }).select("transmission_type seating_capacity Specifications Features -_id")
     res.send(data)
 })
 
@@ -1110,8 +1108,9 @@ router.get("/all_typ/:car", async (req, res) => {
 router.get("/all_var/:type/:value", async (req, res) => {
     let { type, value } = req.params
     let filter = {}
-    filter[type] = value
-    let data = await CarData.find(filter).select("model_name Specifications Features brand fuel_type transmission_type -_id")
+    filter[type === "fuel_type" ? "Specifications.engine_and_transmission." + type: type] = value === "cng" || value === "muv" || value === "suv" ? value.toUpperCase() : value.charAt(0).toUpperCase() + value.slice(1)
+    let data = await CarData.find(filter).select("model_name Specifications Features brand fuel_type transmission_type -_id").limit(100)
+    console.log(data, filter)
     res.send(data)
 })
 
@@ -1894,6 +1893,8 @@ router.get("/get_state", async (req, res) => {
 
 router.get("/filter_state/:state/:limit", async (req, res) => {
     let data = await Pincode_Details.find({ State: req.params.state }).skip(req.params.limit).limit(20)
+
+    coonsole.log(req.params.state, "Hey")
     res.send(data)
 })
 
