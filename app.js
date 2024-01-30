@@ -6,6 +6,7 @@ const cors = require("cors");
 const app = express();
 const path = require("path")
 const body_parser = require("body-parser")
+const compression = require('compression'); 
 
 
 dotenv.config({ path: './config.env' });
@@ -15,7 +16,7 @@ require('./db/conn');
 
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
-
+app.use(compression())
 app.use(express.static('out'));
 app.use(express.static('admin'))
 app.use(require('./router/auth'));
