@@ -6,7 +6,8 @@ const cors = require("cors");
 const app = express();
 const path = require("path")
 const body_parser = require("body-parser")
-const compression = require('compression'); 
+const compression = require('compression');
+
 
 
 dotenv.config({ path: './config.env' });

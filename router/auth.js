@@ -9,8 +9,6 @@ const fastCsv = require("fast-csv")
 const Json2csvParser = require("json2csv").Parser;
 const bcrypt = require('bcrypt');
 
-
-
 require('../db/conn');
 const User = require("../model/userSchema");
 
