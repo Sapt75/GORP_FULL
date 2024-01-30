@@ -17,7 +17,10 @@ require('./db/conn');
 
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
-app.use(compression())
+app.use(compression({
+  level: 6,
+  threshold: 0
+}))
 app.use(express.static('out'));
 app.use(express.static('admin'))
 app.use(require('./router/auth'));

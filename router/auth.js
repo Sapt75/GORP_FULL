@@ -9,6 +9,8 @@ const fastCsv = require("fast-csv")
 const Json2csvParser = require("json2csv").Parser;
 const bcrypt = require('bcrypt');
 
+
+
 require('../db/conn');
 const User = require("../model/userSchema");
 
@@ -754,10 +756,13 @@ router.get("/getmodelnewdetails", async (req, res) => {
         const { brand, model_name } = req.query;
         const regexOptions = 'i';
 
+        // await db.CarData.createIndex({ brand: 1, model_name: 1 }, { collation: { locale: 'en', strength: 2 } });
+
+
         const modeldata = await CarData.find({
             brand: { $regex: brand, $options: regexOptions },
             model_name: { $regex: model_name, $options: regexOptions }
-        })
+        }).lean()
 
         res.status(201).json(modeldata);
     } catch (error) {
@@ -863,18 +868,18 @@ router.get('/city_names', async (req, res) => {
 })
 
 router.get('/model_prices/:id', async (req, res) => {
-    let data = await Model_Prices.find({ model_id: req.params.id })
+    let data = await Model_Prices.find({ model_id: req.params.id }).lean()
 
     data.length > 0 ? res.send(data) : res.json("No Data")
 })
 
 router.get('/version_data/:id', async (req, res) => {
-    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications.engine_and_transmission.displacement Specifications.engine_and_transmission.fuel_type transmission_type -_id')
+    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications.engine_and_transmission.displacement Specifications.engine_and_transmission.fuel_type transmission_type -_id').lean()
     res.send(data)
 })
 
 router.get('/version_prices/:id/:city', async (req, res) => {
-    let data = await PriceDetails.find({ city_name: req.params.city, model_id: req.params.id }).select('ex_showroom_price Version_UID -_id')
+    let data = await PriceDetails.find({ city_name: req.params.city, model_id: req.params.id }).select('ex_showroom_price Version_UID -_id').lean()
     data.length > 0 ? res.send(data) : res.json("No Data")
 })
 
@@ -1020,7 +1025,7 @@ router.get('/model_car/:brand/:model', async (req, res) => {
 
         const data = await CarData
             .find({ brand: { $regex: brand, $options: regexOptions }, model_name: { $regex: model, $options: regexOptions } })
-            .select("transmission_type seating_capacity Specifications Features -_id");
+            .select("transmission_type seating_capacity Specifications Features -_id").lean();
 
         res.json(data);
     } catch (error) {
@@ -1280,7 +1285,7 @@ router.get("/diff_prices/:version", async (req, res) => {
     let cities = ["Chennai", "Hyderabad", "Bangalore", "Mumbai", "Kolkata"]
     let allData = []
     await Promise.all(cities.map(async (itm) => {
-        let data = await PriceDetails.find({ Version_UID: req.params.version, city_name: itm }).select("ex_showroom_price city_name -_id").limit(1)
+        let data = await PriceDetails.find({ Version_UID: req.params.version, city_name: itm }).select("ex_showroom_price city_name -_id").limit(1).lean()
         if (data[0] != null) {
             allData.push(data[0])
         }
@@ -2681,6 +2686,20 @@ router.get("/boom", async (req, res) => {
 
 // // //     res.send("Done")
 // })
+
+
+
+router.get("/chiki", async (req, res) => {
+    CarData.createIndexes([{ brand: 1, model_name: 1 }], function (err, response) {
+        if (err) {
+            console.error(err);
+            res.status(500).send("Error creating index");
+        } else {
+            res.send("Index created successfully");
+        }
+    });
+
+})
 
 
 
