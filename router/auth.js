@@ -8,7 +8,6 @@ const csv = require("csvtojson");
 const fastCsv = require("fast-csv")
 const Json2csvParser = require("json2csv").Parser;
 const bcrypt = require('bcrypt');
-const zlib = require('zlib');
 
 
 
@@ -699,8 +698,16 @@ router.get("/getonebrandcars", async (req, res) => {
 // new car data 10/02/2023
 router.get("/getonebrandcarsnew", async (req, res) => {
     try {
-        const branddata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' } }).select('fuel_type brand model_name transmission_type uid model_id -_id').lean();
-
+        // const MAX_CAR_PER_PAGE = 10;
+        // const page = parseInt(req.query.page) || 0;
+        // const branddata = await NewCarData.find(req.query).limit(MAX_CAR_PER_PAGE).skip(MAX_CAR_PER_PAGE * page);
+        console.log(req.query)
+        const branddata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' } }).select('fuel_type brand model_name transmission_type uid model_id -_id');
+        // const ALL_CARS = await NewCarData.find(req.query);
+        // const NO_OF_CARS = (ALL_CARS.length);
+        // const NO_OF_PAGES = Math.ceil(NO_OF_CARS / MAX_CAR_PER_PAGE);
+        // console.log(NO_OF_CARS);
+        // console.log(NO_OF_PAGES);
         let newBrand = branddata.filter((value, index, self) => {
             return index === self.findIndex((t) => {
                 return t.model_name == value.model_name
@@ -749,13 +756,10 @@ router.get("/getmodelnewdetails", async (req, res) => {
         const { brand, model_name } = req.query;
         const regexOptions = 'i';
 
-        // await db.CarData.createIndex({ brand: 1, model_name: 1 }, { collation: { locale: 'en', strength: 2 } });
-
-
         const modeldata = await CarData.find({
             brand: { $regex: brand, $options: regexOptions },
             model_name: { $regex: model_name, $options: regexOptions }
-        }).lean()
+        })
 
         res.status(201).json(modeldata);
     } catch (error) {
@@ -811,8 +815,24 @@ router.post('/signin', async (req, res) => {
 
 
 router.post('/dealer', async (req, res) => {
-    let data = await Dealer_Details.find({ brand_name: req.body.brand, city_name: req.body.city }).lean()
-    res.send(data)
+
+    console.log(req.body)
+
+    if (req.body.pin.length > 0) {
+        console.log(req.body.pin)
+        let data = await Dealer_Details.find({ brand_name: req.body.brand, city_name: req.body.city, pincode: req.body.pin })
+        if (data.length <= 0) {
+            let dat = await Dealer_Details.find({ brand_name: req.body.brand, city_name: req.body.city })
+            res.status(201).json(dat)
+        } else {
+            res.send(data)
+            console.log(data)
+        }
+    } else {
+        let data = await Dealer_Details.find({ brand_name: req.body.brand, city_name: req.body.city })
+        res.send(data)
+        console.log(data)
+    }
 })
 
 
@@ -840,33 +860,33 @@ router.get('/car_brands/:state', async (req, res) => {
 })
 
 router.get('/city_names', async (req, res) => {
-    let data = await Pincode_Details.find().sort({ "City": 1 }).lean()
+    let data = await City_Details.find().select().sort({ "City Name": 1 })
     res.send(data)
 })
 
 router.get('/model_prices/:id', async (req, res) => {
-    let data = await Model_Prices.find({ model_id: req.params.id }).lean()
+    let data = await Model_Prices.find({ model_id: req.params.id })
 
     data.length > 0 ? res.send(data) : res.json("No Data")
 })
 
 router.get('/version_data/:id', async (req, res) => {
-    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications.engine_and_transmission.displacement Specifications.engine_and_transmission.fuel_type transmission_type -_id').lean()
+    let data = await CarData.find({ model_id: req.params.id }).select('model_name brand uid version_name Specifications.engine_and_transmission.displacement Specifications.engine_and_transmission.fuel_type transmission_type -_id')
     res.send(data)
 })
 
 router.get('/version_prices/:id/:city', async (req, res) => {
-    let data = await PriceDetails.find({ city_name: req.params.city, model_id: req.params.id }).select('ex_showroom_price Version_UID -_id').lean()
+    let data = await PriceDetails.find({ city_name: req.params.city, model_id: req.params.id }).select('ex_showroom_price Version_UID -_id')
     data.length > 0 ? res.send(data) : res.json("No Data")
 })
 
 router.get('/single_version/:mid/:city', async (req, res) => {
-    let data = await PriceDetails.find({ city_name: req.params.city, Version_UID: req.params.mid }).select('ex_showroom_price -_id').lean()
+    let data = await PriceDetails.find({ city_name: req.params.city, Version_UID: req.params.mid }).select('ex_showroom_price -_id')
     res.send(data)
 })
 
 router.get('/all_model_prices/:brand', async (req, res) => {
-    let data = await Model_Prices.find({ brand: { $regex: req.params.brand, $options: 'i' } }).lean()
+    let data = await Model_Prices.find({ brand: { $regex: req.params.brand, $options: 'i' } })
     res.send(data)
 })
 
@@ -1002,7 +1022,7 @@ router.get('/model_car/:brand/:model', async (req, res) => {
 
         const data = await CarData
             .find({ brand: { $regex: brand, $options: regexOptions }, model_name: { $regex: model, $options: regexOptions } })
-            .select("transmission_type seating_capacity Specifications Features -_id").lean();
+            .select("transmission_type seating_capacity Specifications Features -_id");
 
         res.json(data);
     } catch (error) {
@@ -1025,12 +1045,13 @@ router.get('/pincode_details/:code', async (req, res) => {
 })
 
 router.get('/price_car_details/:version/:model', async (req, res) => {
-    let data = await CarData.find({ uid: req.params.version, model_id: req.params.model }).select('brand model_name version_name uid -_id').lean()
+    console.log(req.params.version, req.params.model)
+    let data = await CarData.find({ uid: req.params.version, model_id: req.params.model }).select('brand model_name version_name uid -_id')
     res.send(data)
 })
 
 router.get('/price_breakup/:model/:city', async (req, res) => {
-    let data = await PriceDetails.find({ model_id: req.params.model, city_name: req.params.city }).lean()
+    let data = await PriceDetails.find({ model_id: req.params.model, city_name: req.params.city })
     res.send(data)
 })
 
@@ -1092,21 +1113,8 @@ router.get("/try-link", async (req, res) => {
 
 
 router.get("/all_typ/:car", async (req, res) => {
-    let data = await CarData.find({ brand: { $regex: req.params.car, $options: 'i' } }).select("model_name Specifications transmission_type -_id").lean()
-    zlib.gzip(JSON.stringify(data), (err, compressedData) => {
-        if (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        } else {
-            // Set appropriate headers to indicate that the response is compressed
-            res.setHeader('Content-Encoding', 'gzip');
-            res.setHeader('Content-Type', 'application/json');
-
-            // Send the compressed data
-            res.send(compressedData);
-        }
-    })
-    // res.send(data)
+    let data = await CarData.find({ brand: { $regex: req.params.car, $options: 'i' } }).select("model_name Specifications transmission_type -_id")
+    res.send(data)
 })
 
 router.get("/all_var/:type/:value", async (req, res) => {
@@ -1259,21 +1267,22 @@ router.get("/similar", async (req, res) => {
 })
 
 router.get("/all_brands", async (req, res) => {
-    try {
-        const distinctBrands = await CarData.distinct("brand").lean();
-        console.log(distinctBrands)
-        res.send(distinctBrands);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+    let data = await CarData.find().select("brand -_id")
+    let newData = data.filter((value, index, self) => {
+        return index === self.findIndex((t) => {
+            return t.brand == value.brand
+        })
+    })
+
+    res.send(newData)
+
+})
 
 router.get("/diff_prices/:version", async (req, res) => {
     let cities = ["Chennai", "Hyderabad", "Bangalore", "Mumbai", "Kolkata"]
     let allData = []
     await Promise.all(cities.map(async (itm) => {
-        let data = await PriceDetails.find({ Version_UID: req.params.version, city_name: itm }).select("ex_showroom_price city_name -_id").limit(1).lean()
+        let data = await PriceDetails.find({ Version_UID: req.params.version, city_name: itm }).select("ex_showroom_price city_name -_id").limit(1)
         if (data[0] != null) {
             allData.push(data[0])
         }
@@ -1668,7 +1677,7 @@ router.post("/update_price", async (req, res) => {
 })
 
 router.get("/manage_brand/:brand", async (req, res) => {
-    let data = await CarData.findOne({ brand: { $regex: req.params.brand, $options: 'i' } }).select("brand uid brand_description").lean()
+    let data = await CarData.findOne({ brand: req.params.brand }).select("brand uid brand_description")
     res.send(data)
 })
 
@@ -1978,8 +1987,13 @@ router.get("/get_home/:item", (req, res) => {
 })
 
 router.get("/price_ver/*", async (req, res) => {
-    let data = await CarData.findOne({ brand: { $regex: req.params[0].split("/")[0], $options: 'i' }, model_name: { $regex: req.params[0].split("/")[1], $options: 'i' } }).select("model_id uid -_id").lean()
-    res.send(data)
+    if (req.params[0].split("/").length === 3) {
+        let data = await CarData.findOne({ brand: { $regex: req.params[0].split("/")[0], $options: 'i' }, model_name: { $regex: req.params[0].split("/")[1], $options: 'i' }, [isNaN(parseInt(req.params[0].split("/")[2])) ? "version_name" : "uid"]: isNaN(parseInt(req.params[0].split("/")[2])) ? { $regex: req.params[0].split("/")[2].replace("-", " "), $options: 'i' } : parseInt(req.params[0].split("/")[2]) }).select("model_id uid -_id")
+        res.send(data)
+    } else {
+        let data = await CarData.findOne({ brand: { $regex: req.params[0].split("/")[0], $options: 'i' }, model_name: { $regex: req.params[0].split("/")[1], $options: 'i' } }).select("model_id uid -_id")
+        res.send(data)
+    }
 })
 
 router.get("/boom", async (req, res) => {
@@ -2669,20 +2683,6 @@ router.get("/boom", async (req, res) => {
 
 // // //     res.send("Done")
 // })
-
-
-
-router.get("/chiki", async (req, res) => {
-    CarData.createIndexes([{ brand: 1, model_name: 1 }], function (err, response) {
-        if (err) {
-            console.error(err);
-            res.status(500).send("Error creating index");
-        } else {
-            res.send("Index created successfully");
-        }
-    });
-
-})
 
 
 
