@@ -1261,6 +1261,7 @@ router.get("/similar", async (req, res) => {
 router.get("/all_brands", async (req, res) => {
     try {
         const distinctBrands = await CarData.distinct("brand").lean();
+        console.log(distinctBrands)
         res.send(distinctBrands);
     } catch (error) {
         console.error(error);
