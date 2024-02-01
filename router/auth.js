@@ -840,7 +840,7 @@ router.get('/car_brands/:state', async (req, res) => {
 })
 
 router.get('/city_names', async (req, res) => {
-    let data = await Pincode_Details.find().sort({ "City": 1 }).lean()
+    let data = await City_Details.find().sort({ "City": 1 }).lean()
     res.send(data)
 })
 
@@ -939,8 +939,22 @@ router.get('/filter_range/:value/:state', async (req, res) => {
 
 
 router.get('/filter_range_brand/', async (req, res) => {
-    let data = await CarData.find().select('fuel_type model_name brand transmission_type uid model_id -_id')
-    res.send(data)
+    let data = await CarData.find().select('fuel_type model_name brand transmission_type uid model_id -_id').lean()
+    
+    zlib.gzip(JSON.stringify(data), (err, compressedData) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            // Set appropriate headers to indicate that the response is compressed
+            res.setHeader('Content-Encoding', 'gzip');
+            res.setHeader('Content-Type', 'application/json');
+
+            // Send the compressed data
+            res.send(compressedData);
+        }
+    })
+    // res.send(data)
 })
 
 // router.get('/dealer_model/:brand', async(req,res)=>{
