@@ -940,7 +940,7 @@ router.get('/filter_range/:value/:state', async (req, res) => {
 
 router.get('/filter_range_brand/', async (req, res) => {
     let data = await CarData.find().select('fuel_type model_name brand transmission_type uid model_id -_id').lean()
-    
+
     zlib.gzip(JSON.stringify(data), (err, compressedData) => {
         if (err) {
             console.error(err);
