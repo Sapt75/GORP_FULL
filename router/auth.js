@@ -1827,7 +1827,7 @@ router.post("/verification", async (req, res) => {
 
 
 router.get("/brand_desc/:brand", async (req, res) => {
-    let data = await CarData.findOne({ brand: { $regex: req.params.brand, $options: 'i' } }).select("brand_description -_id")
+    let data = await CarData.findOne({ brand_uri: req.params.brand }).select("brand_description -_id")
     res.send(data)
 })
 
