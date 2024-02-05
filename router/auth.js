@@ -641,15 +641,10 @@ router.get("/single_car/:brand/:model/:version", async (req, res) => {
 
     let { brand, model, version } = req.params
 
-
-    brand = brand.split("-").join(" ").toLowerCase()
-    model = model.split("-").join(" ").toLowerCase()
-    version = version.split("-").join(" ").toLowerCase()
-
     console.log(brand, model, version)
 
 
-    let data = await CarData.find({ brand: { $regex: brand, $options: 'i' }, model_name: { $regex: model, $options: 'i' }, version_name: { $regex: version, $options: 'i' } })
+    let data = await CarData.find({ brand_uri: brand, model_uri: model, version_uri: version })
 
     console.log(data)
 
@@ -749,14 +744,11 @@ router.get("/getmodeldetails", async (req, res) => {
 router.get("/getmodelnewdetails", async (req, res) => {
     try {
         const { brand, model_name } = req.query;
-        const regexOptions = 'i';
-
-        // await db.CarData.createIndex({ brand: 1, model_name: 1 }, { collation: { locale: 'en', strength: 2 } });
 
 
         const modeldata = await CarData.find({
-            brand: { $regex: brand, $options: regexOptions },
-            model_name: { $regex: model_name, $options: regexOptions }
+            brand_uri: brand,
+            model_uri: model_name
         }).lean()
 
         res.status(201).json(modeldata);
@@ -1993,7 +1985,7 @@ router.get("/get_home/:item", (req, res) => {
 })
 
 router.get("/price_ver/*", async (req, res) => {
-    let data = await CarData.findOne({ brand: { $regex: req.params[0].split("/")[0], $options: 'i' }, model_name: { $regex: req.params[0].split("/")[1], $options: 'i' } }).select("model_id uid -_id").lean()
+    let data = await CarData.findOne({ brand_uri: req.params[0].split("/")[0], model_uri: req.params[0].split("/")[1]}).select("model_id uid -_id").lean()
     res.send(data)
 })
 
