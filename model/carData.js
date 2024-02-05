@@ -299,6 +299,9 @@ const carData = new mongoose.Schema({
     "wireless_phone_charging": { type: String },
     "wltp_mileage": { type: String },
     "xenon_headlights": { type: String },
+    "brand_uri" : { type: String },
+    "model_uri" : { type: String },
+    "version_uri" : { type: String }
 });
 
 const CarData = mongoose.model('CARDATA', carData);

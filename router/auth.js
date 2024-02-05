@@ -699,13 +699,15 @@ router.get("/getonebrandcars", async (req, res) => {
 // new car data 10/02/2023
 router.get("/getonebrandcarsnew", async (req, res) => {
     try {
-        const branddata = await CarData.find({ brand: { $regex: req.query.brand, $options: 'i' } }).select('fuel_type brand model_name transmission_type uid model_id -_id').lean();
+        const branddata = await CarData.find({ brand_uri: req.query.brand }).select('fuel_type brand model_name transmission_type uid model_id -_id').lean();
 
         let newBrand = branddata.filter((value, index, self) => {
             return index === self.findIndex((t) => {
                 return t.model_name == value.model_name
             })
         })
+
+
 
         res.status(201).json(newBrand);
 
@@ -866,7 +868,7 @@ router.get('/single_version/:mid/:city', async (req, res) => {
 })
 
 router.get('/all_model_prices/:brand', async (req, res) => {
-    let data = await Model_Prices.find({ brand: { $regex: req.params.brand, $options: 'i' } }).lean()
+    let data = await Model_Prices.find({ brand_uri: req.params.brand }).lean()
     res.send(data)
 })
 
@@ -1106,7 +1108,7 @@ router.get("/try-link", async (req, res) => {
 
 
 router.get("/all_typ/:car", async (req, res) => {
-    let data = await CarData.find({ brand: { $regex: req.params.car, $options: 'i' } }).select("model_name Specifications transmission_type -_id").lean()
+    let data = await CarData.find({ brand_uri: req.params.car }).select("model_name Specifications transmission_type -_id").lean()
     zlib.gzip(JSON.stringify(data), (err, compressedData) => {
         if (err) {
             console.error(err);
@@ -1681,7 +1683,7 @@ router.post("/update_price", async (req, res) => {
 })
 
 router.get("/manage_brand/:brand", async (req, res) => {
-    let data = await CarData.findOne({ brand: { $regex: req.params.brand, $options: 'i' } }).select("brand uid brand_description").lean()
+    let data = await CarData.findOne({ brand_uri: req.params.brand }).select("brand uid brand_description").lean()
     res.send(data)
 })
 
@@ -2682,12 +2684,6 @@ router.get("/boom", async (req, res) => {
 
 // // //     res.send("Done")
 // })
-
-
-
-
-
-
 
 
 
