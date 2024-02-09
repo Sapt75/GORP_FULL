@@ -1120,9 +1120,9 @@ router.get("/all_typ/:car", async (req, res) => {
 router.get("/all_var/:type/:value", async (req, res) => {
     let { type, value } = req.params
     let filter = {}
-    filter[type === "fuel_type" ? "Specifications.engine_and_transmission." + type : type] = value === "cng" || value === "muv" || value === "suv" ? value.toUpperCase() : value.charAt(0).toUpperCase() + value.slice(1)
+    filter[type === "fuel_type" ? "Specifications.engine_and_transmission." + type : type] = value === "cng" || value === "muv" || value === "suv" ? value.toUpperCase() : !isNaN(value) ? parseInt(value) : value.charAt(0).toUpperCase() + value.slice(1)
+    console.log(filter)
     let data = await CarData.find(filter).select("model_name Specifications Features brand fuel_type transmission_type -_id")
-    console.log(data, filter)
     res.send(data)
 })
 

@@ -9,7 +9,7 @@ const carData = new mongoose.Schema({
     body_type: { type: String },
     fuel_type: { type: String },
     transmission_type: { type: String },
-    seating_capacity: { type: String },
+    seating_capacity: { type: Number },
     car: {
     },
     status: { type: String },
@@ -247,7 +247,6 @@ const carData = new mongoose.Schema({
     "roof_rails": { type: String },
     "seat_belt_warning": { type: String },
     "seat_lumbar_support": { type: String },
-    "seating_capacity": { type: String },
     "secondary_fuel_type": { type: String },
     "shock_absorbers_type": { type: String },
     "side_airbag_front": { type: String },
