@@ -890,8 +890,9 @@ let next = 0
 
 router.get('/filter/:type/:value/:state', async (req, res) => {
     let { type, value, state } = req.params
+
     let filter = {}
-    filter[type] = { $regex: value, $options: 'i' }
+    filter[type] = type === "seating_capacity" ? value : { $regex: value, $options: 'i' }
 
 
     console.log(filter, value)
