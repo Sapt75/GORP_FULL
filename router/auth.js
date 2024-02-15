@@ -876,14 +876,8 @@ router.get('/all_fuel_types', async (req, res) => {
 
 
 router.get('/all_seating_types', async (req, res) => {
-    let data = await CarData.find().select('seating_capacity -_id')
-    let newData = data.filter((value, index) => {
-        const _value = JSON.stringify(value);
-        return index === data.findIndex(obj => {
-            return JSON.stringify(obj) === _value;
-        });
-    });
-    res.status(201).json(newData.sort())
+    let data = await CarData.find().distinct('seating_capacity')
+    res.status(201).json(data)
 })
 
 let next = 0
