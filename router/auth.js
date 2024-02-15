@@ -865,7 +865,7 @@ router.get('/all_model_prices/:brand', async (req, res) => {
 })
 
 router.get('/all_body_types', async (req, res) => {
-    let data = await CarData.find().distinct("body_type")
+    let data = await CarData.find().distinct("body_type").lean()
     res.status(201).json(data)
 })
 
