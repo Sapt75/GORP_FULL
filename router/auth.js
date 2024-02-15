@@ -1063,8 +1063,8 @@ router.get('/remove-user/:email', async (req, res) => {
 })
 
 router.get("/car-search/:name", async (req, res) => {
-    console.log(req)
-    let data = await CarData.find({ full_name: { $regex: `(?i)${req.params.name}` } }).select("model_name brand full_name uid model_id").limit(150)
+    
+    let data = await CarData.find({ full_name: { $regex: `(?i)${req.params.name}` } }).select("model_name brand -_id").limit(100).lean()
     let newData = data.filter((value, index, self) => {
         return index === self.findIndex((t) => {
             return t.model_name == value.model_name
