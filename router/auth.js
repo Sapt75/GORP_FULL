@@ -973,16 +973,20 @@ router.get('/dealer_brand/:brand/:pincode?', async (req, res) => {
 })
 
 router.post('/price_query', async (req, res) => {
-    let { name, phone, pincode, car } = req.body
+    let { name, phone, city, car } = req.body
 
+
+    
     let query = new Price_Query({
         name: name,
         number: phone,
-        pincode: pincode,
+        // pincode: pincode,
+        city: city,
         car: car
     })
 
     let data = await PriceQuery.findOne({ car: car, name: name, number: phone })
+
 
     if (data) {
         res.status(400).send("Query Already Exists")
@@ -1022,7 +1026,6 @@ router.get('/pincode_details/:code', async (req, res) => {
             { $addFields: { pincodeStr: { $toString: '$pincode' } } },
             { $match: { pincodeStr: new RegExp("^" + req.params.code) } }
         ]).limit(50)
-        console.log(typeof (data))
         res.send(data)
     }
 })

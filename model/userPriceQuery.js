@@ -5,10 +5,11 @@ const priceQuery = new mongoose.Schema({
     car: { type: String, },
     email: { type: String, },
     number: { type: Number },
-    pincode: { type: Number }
+    // pincode: { type: Number },
+    city: {type: String}
 }, {
     timestamps: true
-})
+}, {collection: 'pricequeries'})
 
 const PriceQuery = mongoose.model('PriceQuery', priceQuery);
 
