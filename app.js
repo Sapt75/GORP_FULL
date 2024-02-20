@@ -32,6 +32,7 @@ const PORT = process.env.PORT
 
 const whitelist = ['https://www.getonroadprice.com', 'http://localhost:3000'];
 
+// Set up CORS options
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
