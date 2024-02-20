@@ -30,7 +30,7 @@ app.use(body_parser.urlencoded({ extended: true, limit: "50mb" }))
 // const DB =`mongodb+srv://admin:admin%40webshark@cluster0.mdurdqc.mongodb.net/onroadprice?retryWrites=true&w=majority`;
 const PORT = process.env.PORT
 
-const whitelist = ['https://www.getonroadprice.com/'];
+const whitelist = ['https://www.getonroadprice.com, http://localhost:3000'];
 
 const corsOptions = {
   origin: function (origin, callback) {
