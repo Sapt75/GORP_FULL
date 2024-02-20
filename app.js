@@ -12,8 +12,7 @@ const compression = require('compression');
 
 dotenv.config({ path: './config.env' });
 require('./db/conn');
-// const user = require('./model/userSchema');
-// "mongodb+srv://admin:admin%40webshark@cluster0.mdurdqc.mongodb.net/onroadprice?retryWrites=true&w=majority"
+
 
 app.use(express.json({ limit: "50mb" }));
 app.use(compression({
@@ -24,14 +23,6 @@ app.use(express.static('out'));
 app.use(express.static('admin'))
 app.use(require('./router/auth'));
 
-// app.use(express.static(path.join(__dirname, 'build')));
-app.use(body_parser.urlencoded({ extended: true, limit: "50mb" }))
-
-// const DB =`mongodb+srv://admin:admin%40webshark@cluster0.mdurdqc.mongodb.net/onroadprice?retryWrites=true&w=majority`;
-const PORT = process.env.PORT
-
-// const whitelist = ['https://www.getonroadprice.com', 'http://localhost:3000'];
-
 // Set up CORS options
 const corsOptions = {
   origin: 'https://www.getonroadprice.com',
@@ -40,41 +31,20 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Middleware
-const middleware = (req, res, next) => {
-  console.log(`Middleware`);
-  next();
-}
-// middleware();
+app.use(body_parser.urlencoded({ extended: true, limit: "50mb" }))
 
-__dirname = path.resolve();
+
+const PORT = process.env.PORT
+
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'out/new-cars/[...variant]/index.html'))
+  res.sendFile(path.join(__dirname, 'build'))
 });
 // app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin/index.html')));
 
 
 
-// app.get('/', (req, res) =>{
-//     res.send(`Hello World from the server a`)
-// });
-
-// app.get('/form', (req, res) =>{
-//     res.send(`Lead Form`)
-// });
-// app.get('/test-page', middleware, (req, res) =>{
-//     console.log(`Test Rule`)
-//     res.send(`Test Page`)
-// });
-// app.get('/test', middleware, (req, res) =>{
-//     res.send(`test page`)
-// });
-
 
 app.listen(PORT, () => {
   console.log(`server is running at port no ${PORT}`);
 })
-
-// console.log(`Sucess`);
-
