@@ -24,9 +24,15 @@ app.use(express.static('admin'))
 app.use(require('./router/auth'));
 
 // Set up CORS options
+const whitelist = ['https://www.getonroadprice.com', 'https://inquisitive-knickers-fish.cyclic.app'];
 const corsOptions = {
-  origin: 'https://www.getonroadprice.com',
-  optionsSuccessStatus: 200, 
+  origin: function (origin, callback) {
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
 };
 
 app.use(cors(corsOptions));
