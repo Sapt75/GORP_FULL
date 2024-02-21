@@ -976,7 +976,7 @@ router.post('/price_query', async (req, res) => {
     let { name, phone, city, car } = req.body
 
 
-    
+
     let query = new Price_Query({
         name: name,
         number: phone,
@@ -1066,7 +1066,7 @@ router.get('/remove-user/:email', async (req, res) => {
 })
 
 router.get("/car-search/:name", async (req, res) => {
-    
+
     let data = await CarData.find({ full_name: { $regex: `(?i)${req.params.name}` } }).select("model_name brand -_id").limit(100).lean()
     let newData = data.filter((value, index, self) => {
         return index === self.findIndex((t) => {
@@ -1266,8 +1266,8 @@ router.get("/similar", async (req, res) => {
 
 router.get("/all_brands", async (req, res) => {
     try {
-        const distinctBrands = await CarData.distinct("brand").lean();
-        res.send(distinctBrands);
+        const distinctBrands = await CarData.find().sort({ position: 1 }).select("brand -_id").lean();
+        res.send([...new Set(distinctBrands.map((item)=> item.brand))]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -1983,77 +1983,77 @@ router.get("/get_home/:item", (req, res) => {
 })
 
 router.get("/price_ver/*", async (req, res) => {
-    let data = await CarData.findOne({ brand_uri: req.params[0].split("/")[0], model_uri: req.params[0].split("/")[1]}).select("model_id uid -_id").lean()
+    let data = await CarData.findOne({ brand_uri: req.params[0].split("/")[0], model_uri: req.params[0].split("/")[1] }).select("model_id uid -_id").lean()
     res.send(data)
 })
 
-router.get("/boom", async (req, res) => {
+// router.get("/boom", async (req, res) => {
 
-    // await CarData.aggregate([
-    //     { $project: { model_description: "" } },
-    //     { $merge: "cardatas" }
-    // ])
-    // res.send("Done")
+//     // await CarData.aggregate([
+//     //     { $project: { model_description: "" } },
+//     //     { $merge: "cardatas" }
+//     // ])
+//     // res.send("Done")
 
-    let data = await CarData.find().distinct("brand")
+//     let data = await CarData.find().distinct("brand")
 
-    function numFormat(value) {
-        const val = Math.abs(value)
-        if (val >= 10000000) return `${(value / 10000000).toFixed(2)} Crore`
-        if (val >= 100000) return `${(value / 100000).toFixed(2)} Lakh`
-        return value;
-    }
+//     function numFormat(value) {
+//         const val = Math.abs(value)
+//         if (val >= 10000000) return `${(value / 10000000).toFixed(2)} Crore`
+//         if (val >= 100000) return `${(value / 100000).toFixed(2)} Lakh`
+//         return value;
+//     }
 
-    data.map(async (item) => {
-        let type = {}
-        let dat = await CarData.find({ brand: item }).select("model_name model_id body_type -_id")
-        let newData = dat.filter((value, index, self) => {
-            return index === self.findIndex((t) => {
-                return t.model_name == value.model_name
-            })
-        })
-        await Promise.allSettled(newData.map((itm) => {
-            if (Object.keys(type).includes(itm.body_type)) {
-                type[itm.body_type] = type[itm.body_type] + 1
-            } else {
-                type[itm.body_type] = 1
-            }
-        }))
+//     data.map(async (item) => {
+//         let type = {}
+//         let dat = await CarData.find({ brand: item }).select("model_name model_id body_type -_id")
+//         let newData = dat.filter((value, index, self) => {
+//             return index === self.findIndex((t) => {
+//                 return t.model_name == value.model_name
+//             })
+//         })
+//         await Promise.allSettled(newData.map((itm) => {
+//             if (Object.keys(type).includes(itm.body_type)) {
+//                 type[itm.body_type] = type[itm.body_type] + 1
+//             } else {
+//                 type[itm.body_type] = 1
+//             }
+//         }))
 
-        let price = await Model_Prices.findOne({ brand: item }).select("max_price min_price -_id")
-
-
-        let text = `${item} Car price in India starts at ₹ ${price ? price.min_price === undefined ? 0 : numFormat(price.min_price) : null} and goes upto ₹ ${price ? price.max_price === undefined ? 0 : numFormat(price.max_price) : null} (ex-showroom price Mumbai). ${item} has ${newData.length} car Models in 2023 offered in India. `
+//         let price = await Model_Prices.findOne({ brand: item }).select("max_price min_price -_id")
 
 
-        let body = "This includes"
-
-        Object.keys(type).map((item, index) => {
-            if (index == Object.keys(type).length - 1) {
-                body += ` ${type[item]} ${item} cars.`
-            } else {
-                body += ` ${type[item]} ${item} cars,`
-            }
-        })
+//         let text = `${item} Car price in India starts at ₹ ${price ? price.min_price === undefined ? 0 : numFormat(price.min_price) : null} and goes upto ₹ ${price ? price.max_price === undefined ? 0 : numFormat(price.max_price) : null} (ex-showroom price Mumbai). ${item} has ${newData.length} car Models in 2023 offered in India. `
 
 
+//         let body = "This includes"
+
+//         Object.keys(type).map((item, index) => {
+//             if (index == Object.keys(type).length - 1) {
+//                 body += ` ${type[item]} ${item} cars.`
+//             } else {
+//                 body += ` ${type[item]} ${item} cars,`
+//             }
+//         })
 
 
-        let min = await Model_Prices.find({ brand: item }).sort({ min_price: +1 }).limit(1).select("min_price model_id -_id")
-        let min_mod = await CarData.findOne({ brand: item, model_id: min[0] ? min[0].model_id : null }).select("model_name -_id")
-        let max = await Model_Prices.find({ brand: item }).sort({ max_price: -1 }).limit(1).select("max_price model_id -_id")
-        let max_mod = await CarData.findOne({ brand: item, model_id: max[0] ? max[0].model_id : null }).select("model_name -_id")
-
-        let stext = ` The cheapest car model is ${item} ${min_mod ? min_mod.model_name : null} Price ₹${min[0] ? numFormat(min[0].min_price) : null} and the most expensive car model is ${item} ${max_mod ? max_mod.model_name : null} Price ₹${max[0] ? numFormat(max[0].max_price) : null} . Get OnRoad Price of all ${newData.length} ${item} Cars available in 2023, View Features, Price Breakup, Mileage, Colours, Variants Price and more at GetonRoadPrice. Below is the Price of all ${item} Car Models in India:`
 
 
-        await CarData.updateMany({ brand: item }, { $set: { brand_description: text + body + stext } }, (err) => {
-            if (err) console.log(err)
-            else console.log("Done")
-        }).clone().catch(function (err) { console.log(err) })
-        // res.send("Done")
-    })
-})
+//         let min = await Model_Prices.find({ brand: item }).sort({ min_price: +1 }).limit(1).select("min_price model_id -_id")
+//         let min_mod = await CarData.findOne({ brand: item, model_id: min[0] ? min[0].model_id : null }).select("model_name -_id")
+//         let max = await Model_Prices.find({ brand: item }).sort({ max_price: -1 }).limit(1).select("max_price model_id -_id")
+//         let max_mod = await CarData.findOne({ brand: item, model_id: max[0] ? max[0].model_id : null }).select("model_name -_id")
+
+//         let stext = ` The cheapest car model is ${item} ${min_mod ? min_mod.model_name : null} Price ₹${min[0] ? numFormat(min[0].min_price) : null} and the most expensive car model is ${item} ${max_mod ? max_mod.model_name : null} Price ₹${max[0] ? numFormat(max[0].max_price) : null} . Get OnRoad Price of all ${newData.length} ${item} Cars available in 2023, View Features, Price Breakup, Mileage, Colours, Variants Price and more at GetonRoadPrice. Below is the Price of all ${item} Car Models in India:`
+
+
+//         await CarData.updateMany({ brand: item }, { $set: { brand_description: text + body + stext } }, (err) => {
+//             if (err) console.log(err)
+//             else console.log("Done")
+//         }).clone().catch(function (err) { console.log(err) })
+//         // res.send("Done")
+//     })
+// })
 
 
 
@@ -2673,6 +2673,24 @@ router.get("/boom", async (req, res) => {
 
 
 // // //     res.send("Done")
+// })
+
+// let c = 10
+
+// router.get("/okay/:brand/", async (req, res) => {
+//     // const result = await CarData.updateMany(
+//     //     { $set: { position: 1 }  }
+//     //   );
+ 
+//     // res.send("Done")
+
+//     c = c+1
+
+//     await CarData.updateMany({brand: req.params.brand}, {$set:{
+//         position: c
+//     }})
+
+//     res.send("Done")
 // })
 
 
