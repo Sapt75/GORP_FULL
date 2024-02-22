@@ -24,19 +24,20 @@ app.use(express.static('admin'))
 app.use(require('./router/auth'));
 
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = ['https://www.getonroadprice.com', 'https://inquisitive-knickers-fish.cyclic.app'];
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  optionsSuccessStatus: 200,
-};
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     const allowedOrigins = ['https://www.getonroadprice.com', 'https://inquisitive-knickers-fish.cyclic.app'];
+//     if (allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   optionsSuccessStatus: 200,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(body_parser.urlencoded({ extended: true, limit: "50mb" }))
 
