@@ -13,7 +13,7 @@ const compression = require('compression');
 dotenv.config({ path: './config.env' });
 require('./db/conn');
 
-
+app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(compression({
   level: 6,
@@ -37,7 +37,6 @@ app.use(require('./router/auth'));
 // };
 
 // app.use(cors(corsOptions));
-app.use(cors());
 
 app.use(body_parser.urlencoded({ extended: true, limit: "50mb" }))
 
